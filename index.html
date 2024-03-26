@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://fav.farm/🔥" />
+
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    const cities = [];
+
+    // Pegando os dados no endpoint e transformando em Json para manipulá-los 
+    const promise = fetch(endpoint)
+    .then(blob => blob.json())
+    .then(data => cities.push(...data))
+    // Usei o nome data apenas por estética, qualquer nome serviria pois o JS entende a referencia.
+    .then(console.log(cities))
+
+    function findMatches(wordToMatch, cities){
+        return cities.filter(place => {
+            const regex = new RegExp(wordToMatch, 'gi')
+            return place.city.match(regex) || place.state.match(regex)
+        })
+
+    }
+
+    function displayMatches(){
+        const matchArray = findMatches(this.value, cities)
+        const html = matchArray.map(place =>{
+            const regex = new RegExp(this.value, 'gi')
+            const cityName = place.city.replace(regex, `<span class="hl"> ${this.value}</span>`)
+            const stateName = place.state.replace(regex, `<span class="hl"> ${this.value}</span>`)
+            //Esse regex vai procurar a palavra digitada e depois será usado para marcar os resultados da pesquisa. 
+            return `<li>
+                <span class="name">${cityName}, ${stateName}</span>    
+                <span class="population">${place.population}</span>    
+            </li>`
+            // Poderia colocar um regex no número de habitantes também para ficar visualmente melhor
+        }).join('')
+
+        // para juntar tudo em uma string só, já que o método map() retorna uma Array
+
+        suggestions.innerHTML = html
+    }
+    const searchInput = document.querySelector('.search')
+    const suggestions = document.querySelector('.suggestions')
+
+    searchInput.addEventListener('change', displayMatches)
+    searchInput.addEventListener('keyup', displayMatches)
+
+
+
+</script>
+</body>
+</html>
